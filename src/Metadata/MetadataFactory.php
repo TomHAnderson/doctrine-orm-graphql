@@ -106,9 +106,9 @@ class MetadataFactory extends AbstractMetadataFactory
                 'limit' => $instance->getLimit(),
                 'namingStrategy' => $instance->getNamingStrategy(),
                 'fields' => [],
-                'filters' => $instance->getFilters(),
-                'excludeCriteria' => array_map(
-                    static fn (Filters $filter) => $filter->getName(),
+                'hydratorFilters' => $instance->getHydratorFilters(),
+                'excludeFilters' => array_map(
+                    static fn (Filters $filter) => $filter->value,
                     $instance->getExcludeFilters(),
                 ),
                 'description' => $instance->getDescription(),
@@ -155,7 +155,7 @@ class MetadataFactory extends AbstractMetadataFactory
 
                 $this->metadata[$reflectionClass->getName()]['fields'][$fieldName]['excludeFilters'] =
                     array_map(
-                        static fn (Filters $filter) => $filter->getName(),
+                        static fn (Filters $filter) => $filter->value,
                         $instance->getExcludeFilters(),
                     );
 
@@ -206,9 +206,9 @@ class MetadataFactory extends AbstractMetadataFactory
                 $this->metadata[$reflectionClass->getName()]['fields'][$associationName]['description'] =
                     $instance->getDescription();
 
-                $this->metadata[$reflectionClass->getName()]['fields'][$associationName]['excludeCriteria'] =
+                $this->metadata[$reflectionClass->getName()]['fields'][$associationName]['excludeFilters'] =
                     array_map(
-                        static fn (Filters $filter) => $filter->getName(),
+                        static fn (Filters $filter) => $filter->value,
                         $instance->getExcludeFilters(),
                     );
 

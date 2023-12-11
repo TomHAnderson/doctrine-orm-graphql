@@ -17,7 +17,7 @@ class IncludeExcludeCriteriaTest extends AbstractTest
     public function testExcludeCriteria(): void
     {
         $this->expectException(Throwable::class);
-        $this->expectExceptionMessage('includeCriteria and excludeCriteria are mutually exclusive.');
+        $this->expectExceptionMessage('includeFilters and excludeFilters are mutually exclusive.');
 
         $config = new Config(['group' => 'IncludeExcludeCriteriaTest']);
 

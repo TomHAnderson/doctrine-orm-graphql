@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ApiSkeletons\Doctrine\ORM\GraphQL\Criteria;
+namespace ApiSkeletons\Doctrine\ORM\GraphQL\Filter;
 
 use ApiSkeletons\Doctrine\ORM\GraphQL\Config;
-use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\Filters;
-use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\InputObjectType;
+use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\Type\InputObjectType;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Type\Entity;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Type\TypeManager;
 use Doctrine\ORM\EntityManager;
@@ -14,7 +13,6 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use GraphQL\Type\Definition\InputObjectType as GraphQLInputObjectType;
 use GraphQL\Type\Definition\Type;
 use League\Event\EventDispatcher;
-use function array_diff;
 use function array_filter;
 use function array_keys;
 use function array_merge;
@@ -23,7 +21,7 @@ use function count;
 use function in_array;
 use const SORT_REGULAR;
 
-class CriteriaFactory
+class FilterFactory
 {
     public function __construct(
         protected Config $config,
@@ -48,33 +46,36 @@ class CriteriaFactory
             return $this->typeManager->get($typeName);
         }
 
-        $fields          = [];
-        $entityMetadata  = $targetEntity->getMetadata();
+        $entityMetadata = $targetEntity->getMetadata();
+
         $excludedFilters = array_unique(
             array_merge(
-                $entityMetadata['excludeCriteria'],
-                $this->config->getExcludeCriteria(),
+                Filters::fromArray($entityMetadata['excludeFilters'] ?? []),
+                Filters::fromArray($this->config->getExcludeFilers()),
             ),
             SORT_REGULAR,
         );
 
-        // Convert the enum Filters to an array
+        // Get a diff of the allowed filters and the excluded filters
+        // array_diff does not work on enum
+        foreach (Filters::cases() as $filter) {
+            if (in_array($filter, $excludedFilters)) {
+                continue;
+            }
 
-
-
-        // Limit filters
-        $allowedFilters = array_diff(Filters::valueArray(), $excludedFilters);
+            $allowedFilters[] = $filter;
+        }
 
         // Limit association filters
         if ($associationName) {
-            $excludeCriteria = $associationMetadata['excludeCriteria'];
-            $allowedFilters  = array_filter($allowedFilters, static function ($value) use ($excludeCriteria) {
-                return ! in_array($value, $excludeCriteria);
+            $excludeFilters = Filters::fromArray($associationMetadata['excludeFilters'] ?? []);
+            $allowedFilters = array_filter($allowedFilters, static function ($value) use ($excludeFilters) {
+                return ! in_array($value, $excludeFilters);
             });
         }
 
-        $this->addFields($targetEntity, $typeName, $allowedFilters, $fields);
-        $this->addAssociations($targetEntity, $typeName, $allowedFilters, $fields);
+        $fields = $this->addFields($targetEntity, $typeName, $allowedFilters);
+        $fields = array_merge($fields, $this->addAssociations($targetEntity, $typeName, $allowedFilters));
 
         $inputObject = new GraphQLInputObjectType([
             'name' => $typeName,
@@ -89,9 +90,12 @@ class CriteriaFactory
     /**
      * @param Filters[]                          $allowedFilters
      * @param array<int, GraphQLInputObjectType> $fields
+     * @return array<string, mixed[]>
      */
-    protected function addFields(Entity $targetEntity, string $typeName, array $allowedFilters, array &$fields): void
+    protected function addFields(Entity $targetEntity, string $typeName, array $allowedFilters): array
     {
+        $fields = [];
+
         $classMetadata  = $this->entityManager->getClassMetadata($targetEntity->getEntityClass());
         $entityMetadata = $targetEntity->getMetadata();
 
@@ -104,20 +108,16 @@ class CriteriaFactory
             $graphQLType = $this->typeManager
                 ->get($entityMetadata['fields'][$fieldName]['type']);
 
-            if ($classMetadata->isIdentifier($fieldName)) {
-                $graphQLType = Type::id();
-            }
-
             // Limit field filters
             if (
-                isset($entityMetadata['fields'][$fieldName]['excludeCriteria'])
-                && count($entityMetadata['fields'][$fieldName]['excludeCriteria'])
+                isset($entityMetadata['fields'][$fieldName]['excludeFilters'])
+                && count($entityMetadata['fields'][$fieldName]['excludeFilters'])
             ) {
-                $fieldExcludeCriteria = $entityMetadata['fields'][$fieldName]['excludeCriteria'];
-                $allowedFilters       = array_filter(
+                $fieldExcludeFilters = Filters::fromArray($entityMetadata['fields'][$fieldName]['excludeFilters']);
+                $allowedFilters      = array_filter(
                     $allowedFilters,
-                    static function ($value) use ($fieldExcludeCriteria) {
-                        return ! in_array($value, $fieldExcludeCriteria);
+                    static function ($value) use ($fieldExcludeFilters) {
+                        return ! in_array($value, $fieldExcludeFilters);
                     },
                 );
             }
@@ -128,14 +128,19 @@ class CriteriaFactory
                 'description' => 'Filters for ' . $fieldName,
             ];
         }
+
+        return $fields;
     }
 
     /**
-     * @param string[]                           $allowedFilters
+     * @param Filters[]                          $allowedFilters
      * @param array<int, GraphQLInputObjectType> $fields
+     * @return array<string, mixed[]>
      */
-    protected function addAssociations(Entity $targetEntity, string $typeName, array $allowedFilters, array &$fields): void
+    protected function addAssociations(Entity $targetEntity, string $typeName, array $allowedFilters): array
     {
+        $fields = [];
+
         $classMetadata  = $this->entityManager->getClassMetadata($targetEntity->getEntityClass());
         $entityMetadata = $targetEntity->getMetadata();
 
@@ -156,11 +161,13 @@ class CriteriaFactory
                     if (in_array(Filters::EQ, $allowedFilters)) {
                         $fields[$associationName] = [
                             'name' => $associationName,
-                            'type' => new InputObjectType($typeName, $associationName, $graphQLType, ['eq']),
+                            'type' => new InputObjectType($typeName, $associationName, $graphQLType, [Filters::EQ]),
                             'description' => 'Filters for ' . $associationName,
                         ];
                     }
             }
         }
+
+        return $fields;
     }
 }

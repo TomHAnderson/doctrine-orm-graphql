@@ -40,6 +40,7 @@ class FieldStrategyTest extends AbstractTest
 
         $result = GraphQL::executeQuery($schema, $query);
         $output = $result->toArray();
+
         foreach ($output['data']['user']['edges'] as $edge) {
             $this->assertEquals(1, $edge['node']['name']);
         }

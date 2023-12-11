@@ -56,17 +56,17 @@ class HydratorFactory extends AbstractContainer
         if ($hydrator instanceof StrategyEnabledInterface) {
             foreach ($config['fields'] as $fieldName => $fieldMetadata) {
                 assert(
-                    in_array(StrategyInterface::class, class_implements($fieldMetadata['strategy'])),
-                    'Strategy must implement ' . StrategyInterface::class,
+                    in_array(StrategyInterface::class, class_implements($fieldMetadata['hydratorStrategy'])),
+                    'Hydrator Strategy must implement ' . StrategyInterface::class,
                 );
 
-                $hydrator->addStrategy($fieldName, $this->get($fieldMetadata['strategy']));
+                $hydrator->addStrategy($fieldName, $this->get($fieldMetadata['hydratorStrategy']));
             }
         }
 
         // Create filters and assign to hydrator
         if ($hydrator instanceof Filter\FilterEnabledInterface) {
-            foreach ($config['filters'] as $name => $filterConfig) {
+            foreach ($config['hydratorFilters'] as $name => $filterConfig) {
                 // Default filters to AND
                 $condition   = $filterConfig['condition'] ?? Filter\FilterComposite::CONDITION_AND;
                 $filterClass = $filterConfig['filter'];

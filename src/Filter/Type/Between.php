@@ -15,23 +15,21 @@ class Between extends InputObjectType
 {
     public function __construct(ScalarType|ListOfType $type)
     {
-        $fields = [
-            'from' => new InputObjectField([
-                'name'        => 'from',
-                'type'        => $type,
-                'description' => 'Low value of between',
-            ]),
-            'to' => new InputObjectField([
-                'name'        => 'to',
-                'type'        => $type,
-                'description' => 'High value of between',
-            ]),
-        ];
-
         parent::__construct([
             'name' => 'Between_' . uniqid(),
             'description' => 'Between `from` and `to`',
-            'fields'      => static fn () => $fields,
+            'fields' =>  [
+                'from' => new InputObjectField([
+                    'name'        => 'from',
+                    'type'        => $type,
+                    'description' => 'Low value of between',
+                ]),
+                'to' => new InputObjectField([
+                    'name'        => 'to',
+                    'type'        => $type,
+                    'description' => 'High value of between',
+                ]),
+            ],
         ]);
     }
 }

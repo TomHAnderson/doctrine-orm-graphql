@@ -7,8 +7,7 @@ namespace ApiSkeletons\Doctrine\ORM\GraphQL\Attribute;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\Filters;
 use Exception;
 
-use function array_diff;
-use function array_intersect;
+use function in_array;
 
 trait ExcludeFilters
 {
@@ -20,9 +19,25 @@ trait ExcludeFilters
         }
 
         if ($this->includeFilters) {
-            $this->excludeFilters = array_diff(Filters::toArray(), $this->includeFilters);
+            // Get a diff of the allowed filters and the excluded filters
+            // array_diff does not work on enum
+            foreach (Filters::cases() as $filter) {
+                if (in_array($filter, $this->includeFilters)) {
+                    continue;
+                }
+
+                $this->excludeFilters[] = $filter;
+            }
         } elseif ($this->excludeFilters) {
-            $this->excludeFilters = array_intersect(Filters::toArray(), $this->excludeFilters);
+            // Array intersect of the allowed filters and the excluded filters
+            // array_intersect does not work on enum
+            foreach (Filters::cases() as $filter) {
+                if (! in_array($filter, $this->excludeFilters)) {
+                    continue;
+                }
+
+                $this->excludeFilters[] = $filter;
+            }
         }
 
         return $this->excludeFilters;

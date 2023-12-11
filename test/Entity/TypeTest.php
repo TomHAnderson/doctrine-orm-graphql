@@ -6,6 +6,7 @@ namespace ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity;
 
 use ApiSkeletons\Doctrine\ORM\GraphQL\Attribute as GraphQL;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 

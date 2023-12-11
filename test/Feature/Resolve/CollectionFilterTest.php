@@ -7,6 +7,7 @@ namespace ApiSkeletonsTest\Doctrine\ORM\GraphQL\Feature\Resolve;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Driver;
 use ApiSkeletonsTest\Doctrine\ORM\GraphQL\AbstractTest;
 use ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity\Artist;
+use ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity\Performance;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
@@ -35,6 +36,14 @@ class CollectionFilterTest extends AbstractTest
                             'pagination' => $driver->pagination(),
                         ],
                         'resolve' => $driver->resolve(Artist::class),
+                    ],
+                    'performance' => [
+                        'type' => $driver->connection($driver->type(Performance::class)),
+                        'args' => [
+                            'filter' => $driver->filter(Performance::class),
+                            'pagination' => $driver->pagination(),
+                        ],
+                        'resolve' => $driver->resolve(Performance::class),
                     ],
                 ],
             ]),
@@ -120,8 +129,36 @@ class CollectionFilterTest extends AbstractTest
 
     public function testbetween(): void
     {
-        $query  = '{ artist { edges { node { performances ( filter: {id: { between: { from: 2, to: 3 } } } ) { edges { node { id } } } } } } }';
-        $result = GraphQL::executeQuery($this->schema, $query);
+        $query  = '
+          query BetweenQueryTest($from: Int!, $to: Int!) {
+            performance (
+                    filter: {
+                      id: { between: { from: $from, to: $to } }
+                    }
+                  ) {
+                    edges {
+                      node {
+                        venue
+                        id
+                      }
+                    }
+                  }
+                }
+
+
+
+        ';
+
+        $result = GraphQL::executeQuery(
+            schema: $this->schema,
+            source: $query,
+            variableValues: [
+                'from' => 1,
+                'to' => 2,
+            ],
+        );
+
+        print_r($result->toArray());die();
 
         $data = $result->toArray()['data'];
 

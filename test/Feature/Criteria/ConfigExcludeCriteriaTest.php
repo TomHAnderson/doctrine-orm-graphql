@@ -6,6 +6,7 @@ namespace ApiSkeletonsTest\Doctrine\ORM\GraphQL\Feature\Criteria;
 
 use ApiSkeletons\Doctrine\ORM\GraphQL\Config;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Driver;
+use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\Filters;
 use ApiSkeletonsTest\Doctrine\ORM\GraphQL\AbstractTest;
 use ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity\Artist;
 use GraphQL\GraphQL;
@@ -16,7 +17,9 @@ class ConfigExcludeCriteriaTest extends AbstractTest
 {
     public function testConfigExcludeCriteria(): void
     {
-        $config = new Config(['excludeCriteria' => ['eq', 'neq', 'contains']]);
+        $config = new Config([
+            'excludeFilters' => [Filters::EQ, Filters::NEQ, Filters::CONTAINS],
+        ]);
 
         $driver = new Driver($this->getEntityManager(), $config);
 

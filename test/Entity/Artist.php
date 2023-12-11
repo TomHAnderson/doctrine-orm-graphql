@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity;
 
 use ApiSkeletons\Doctrine\ORM\GraphQL\Attribute as GraphQL;
-use ApiSkeletons\Doctrine\ORM\GraphQL\Criteria\Filters;
+use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\Filters;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Artist
  */
 #[GraphQL\Entity(typeName: 'artist', description: 'Artists')]
-#[GraphQL\Entity(group: 'ExcludeCriteriaTest', excludeCriteria: ['neq'])]
+#[GraphQL\Entity(group: 'ExcludeCriteriaTest', excludeFilters: [Filters::NEQ])]
 #[GraphQL\Entity(group: 'TypeNameTest')]
 #[GraphQL\Entity(group: 'DuplicateGroup')]
 #[GraphQL\Entity(group: 'DuplicateGroup')]
@@ -27,7 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Artist
 {
     #[GraphQL\Field(description: 'Artist name')]
-    #[GraphQL\Field(group: 'ExcludeCriteriaTest', excludeCriteria: ['eq'])]
+    #[GraphQL\Field(group: 'ExcludeCriteriaTest', excludeFilters: [Filters::EQ])]
     #[GraphQL\Field(group: 'TypeNameTest')]
     #[GraphQL\Field(group: 'DuplicateGroup')]
     #[GraphQL\Field(group: 'DuplicateGroup')]
@@ -52,8 +52,8 @@ class Artist
 
     /** @var Collection<id, Performance> */
     #[GraphQL\Association(description: 'Performances')]
-    #[GraphQL\Association(group: 'ExcludeCriteriaTest', excludeCriteria: [Filters::NEQ])]
-    #[GraphQL\Association(group: 'IncludeCriteriaTest', includeCriteria: [Filters::EQ])]
+    #[GraphQL\Association(group: 'ExcludeCriteriaTest', excludeFilters: [Filters::NEQ])]
+    #[GraphQL\Association(group: 'IncludeCriteriaTest', includeFilters: [Filters::EQ])]
     #[GraphQL\Association(group: 'DuplicateGroup')]
     #[GraphQL\Association(group: 'DuplicateGroup')]
     #[GraphQL\Association(group: 'DuplicateGroupAssociation')]

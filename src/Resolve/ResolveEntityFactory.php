@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace ApiSkeletons\Doctrine\ORM\GraphQL\Resolve;
 
 use ApiSkeletons\Doctrine\ORM\GraphQL\Config;
-use ApiSkeletons\Doctrine\ORM\GraphQL\Criteria\Filters;
-use ApiSkeletons\Doctrine\ORM\GraphQL\Event\FilterQueryBuilder;
+use ApiSkeletons\Doctrine\ORM\GraphQL\Event\FilterQueryBuilder as FilterQueryBuilderEvent;
+use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\QueryBuilder as FilterQueryBuilder;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Type\Entity;
 use ArrayObject;
 use Closure;
@@ -32,20 +32,20 @@ class ResolveEntityFactory
     public function get(Entity $entity, string $eventName): Closure
     {
         return function ($objectValue, array $args, $context, ResolveInfo $info) use ($entity, $eventName) {
-            $entityClass = $entity->getEntityClass();
-            $filters     = new Filters();
+            $entityClass        = $entity->getEntityClass();
+            $filterQueryBuilder = new FilterQueryBuilder();
 
-            $queryBuilder = $this->entityManager->createQueryBuilder();
-            $queryBuilder->select('entity')
+            $doctrineQueryBuilder = $this->entityManager->createQueryBuilder();
+            $doctrineQueryBuilder->select('entity')
                 ->from($entityClass, 'entity');
 
             if (isset($args['filter'])) {
-                $filters->applyToQueryBuilder($args['filter'], $queryBuilder);
+                $filterQueryBuilder->apply($args['filter'], $doctrineQueryBuilder);
             }
 
             return $this->buildPagination(
                 entity: $entity,
-                queryBuilder: $queryBuilder,
+                queryBuilder: $doctrineQueryBuilder,
                 eventName: $eventName,
                 objectValue: $objectValue,
                 args: $args,
@@ -100,7 +100,7 @@ class ResolveEntityFactory
          * Include all resolve variables.
          */
         $this->eventDispatcher->dispatch(
-            new FilterQueryBuilder(
+            new FilterQueryBuilderEvent(
                 $queryBuilder,
                 $eventName,
                 ...$resolve,

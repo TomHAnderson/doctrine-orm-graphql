@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity;
 
 use ApiSkeletons\Doctrine\ORM\GraphQL\Attribute as GraphQL;
-use ApiSkeletons\Doctrine\ORM\GraphQL\Criteria\Filters;
+use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\Filters;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -15,16 +15,16 @@ use Doctrine\ORM\Mapping as ORM;
  * Performance
  */
 #[GraphQL\Entity(typeName: 'performance', description: 'Performances')]
-#[GraphQL\Entity(group: 'ExcludeCriteriaTest', excludeCriteria: ['contains'])]
-#[GraphQL\Entity(group: 'IncludeCriteriaTest', includeCriteria: [
+#[GraphQL\Entity(group: 'ExcludeCriteriaTest', excludeFilters: [Filters::CONTAINS])]
+#[GraphQL\Entity(group: 'IncludeCriteriaTest', includeFilters: [
     Filters::EQ,
     Filters::NEQ,
     Filters::CONTAINS,
 ])]
 #[GraphQL\Entity(
     group: 'IncludeExcludeCriteriaTest',
-    excludeCriteria: [Filters::IN],
-    includeCriteria: [
+    excludeFilters: [Filters::IN],
+    includeFilters: [
         Filters::EQ,
         Filters::NEQ,
         Filters::CONTAINS,
@@ -46,7 +46,7 @@ class Performance
 
     #[GraphQL\Field(description: 'City name')]
     #[GraphQL\Field(group: 'FilterCriteriaEvent')]
-    #[GraphQL\Field(group: 'IncludeCriteriaTest', includeCriteria: [
+    #[GraphQL\Field(group: 'IncludeCriteriaTest', includeFilters: [
         Filters::EQ,
         Filters::NEQ,
     ])]
@@ -56,7 +56,7 @@ class Performance
 
     #[GraphQL\Field(description: 'State name')]
     #[GraphQL\Field(group: 'FilterCriteriaEvent')]
-    #[GraphQL\Field(group: 'IncludeCriteriaTest', excludeCriteria: [
+    #[GraphQL\Field(group: 'IncludeCriteriaTest', excludeFilters: [
         Filters::EQ,
     ])]
     #[ORM\Column(type: 'string', nullable: true)]
@@ -79,7 +79,7 @@ class Performance
 
     /** @var Collection<id, Recording> */
     #[GraphQL\Association(description: 'Recordings by artist')]
-    #[GraphQL\Association(group: 'IncludeCriteriaTest', includeCriteria: [Filters::CONTAINS])]
+    #[GraphQL\Association(group: 'IncludeCriteriaTest', includeFilters: [Filters::CONTAINS])]
     #[ORM\OneToMany(targetEntity: 'ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity\Recording', mappedBy: 'performance')]
     private Collection $recordings;
 

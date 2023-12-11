@@ -22,8 +22,10 @@ class QueryBuilder
     ): void {
         foreach ($filterTypes as $field => $filters) {
             $entityField = $alias . '.' . $field;
-
             foreach ($filters as $filter => $value) {
+
+                $filter = Filters::from($filter);
+
                 switch ($filter) {
                     case Filters::BETWEEN:
                         $from = 'p' . uniqid();
@@ -85,7 +87,7 @@ class QueryBuilder
                     default:
                         $parameter = 'p' . uniqid();
                         $queryBuilder->andWhere(
-                            $queryBuilder->expr()->$filter($entityField, ':' . $parameter),
+                            $queryBuilder->expr()->{$filter->value}($entityField, ':' . $parameter),
                         )
                             ->setParameter($parameter, $value);
                         break;

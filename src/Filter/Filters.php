@@ -9,6 +9,10 @@ use ArchTech\Enums\InvokableCases;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use Throwable;
+
+use function array_map;
+use function is_string;
 
 enum Filters: string
 {
@@ -57,14 +61,35 @@ enum Filters: string
      */
     public function type(ScalarType|ListOfType $type): Type
     {
-        $overrideFilterType = match ($this) {
-            self::BETWEEN => new Between($type),
-            self::IN => Type::listOf($type),
-            self::ISNULL => Type::boolean(),
-            self::NOTIN => Type::listOf($type),
-            self::SORT => Type::string(),
-        };
-
-        return $overrideFilterType ?? $type;
+        try {
+            return match ($this) {
+                self::BETWEEN => new Between($type),
+                self::IN => Type::listOf($type),
+                self::ISNULL => Type::boolean(),
+                self::NOTIN => Type::listOf($type),
+                self::SORT => Type::string(),
+            };
+        } catch (Throwable) {
+            return $type;
+        }
     }
- }
+
+    /**
+     * Convert an array of Filters or strings to an array of Filters
+     *
+     * @param array<string>|Filters[] $filters
+     *
+     * @return Filters[]
+     */
+    public static function fromArray(array $filters): array
+    {
+        $filters = array_map(
+            static function ($filter) {
+                return is_string($filter) ? Filters::from($filter) : $filter;
+            },
+            $filters,
+        );
+
+        return $filters;
+    }
+}
