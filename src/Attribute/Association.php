@@ -20,16 +20,22 @@ class Association
      * @param Filters[] $includeFilters
      */
     public function __construct(
-        protected string $group = 'default',
-        protected string|null $hydratorStrategy = null,
+        protected string $alias = '',
+        protected string|null $criteriaEventName = null,
         protected string|null $description = null,
         array $excludeFilters = [],
+        protected string $group = 'default',
+        protected string|null $hydratorStrategy = null,
         array $includeFilters = [],
-        protected string|null $criteriaEventName = null,
         protected int|null $limit = null,
     ) {
         $this->includeFilters = $includeFilters;
         $this->excludeFilters = $excludeFilters;
+    }
+
+    public function getAlias(): string
+    {
+        return $this->alias;
     }
 
     public function getLimit(): int|null

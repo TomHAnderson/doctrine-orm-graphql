@@ -75,7 +75,7 @@ class HydratorContainer extends Container
         }
 
         // Create naming strategy and assign to hydrator
-        if ($hydrator instanceof NamingStrategyEnabledInterface && $config['hydratorNamingStrategy']) {
+        if ($config['hydratorNamingStrategy']) {
             $namingStrategyClass = $config['hydratorNamingStrategy'];
 
             assert(
@@ -84,6 +84,11 @@ class HydratorContainer extends Container
             );
 
             $hydrator->setNamingStrategy($this->get($namingStrategyClass));
+        }
+
+        // Create a naming strategy based on field aliases
+        if (! $config['hydratorNamingStrategy'] && $entity->getAliasMap()) {
+
         }
 
         $this->set($id, $hydrator);

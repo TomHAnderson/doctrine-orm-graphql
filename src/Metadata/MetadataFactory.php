@@ -147,11 +147,12 @@ class MetadataFactory extends CommonMetadataFactory
                 $fieldInstance = $instance;
 
                 $fieldMetadata = [
+                    'alias' => $instance->getAlias(),
                     'description' => $instance->getDescription(),
-                    'type' => $instance->getType() ?? $entityClassMetadata->getTypeOfField($fieldName),
+                    'excludeFilters' => Filters::toStringArray($instance->getExcludeFilters()),
                     'hydratorStrategy' => $instance->getHydratorStrategy() ??
                         $this->getDefaultStrategy($entityClassMetadata->getTypeOfField($fieldName)),
-                    'excludeFilters' => Filters::toStringArray($instance->getExcludeFilters()),
+                    'type' => $instance->getType() ?? $entityClassMetadata->getTypeOfField($fieldName),
                 ];
 
                 $this->metadata[$reflectionClass->getName()]['fields'][$fieldName] = $fieldMetadata;
@@ -192,12 +193,13 @@ class MetadataFactory extends CommonMetadataFactory
                 $associationInstance = $instance;
 
                 $associationMetadata = [
-                    'limit' => $instance->getLimit(),
+                    'alias' => $instance->getAlias(),
+                    'criteriaEventName' => $instance->getCriteriaEventName(),
                     'description' => $instance->getDescription(),
                     'excludeFilters' => Filters::toStringArray($instance->getExcludeFilters()),
-                    'criteriaEventName' => $instance->getCriteriaEventName(),
                     'hydratorStrategy' => $instance->getHydratorStrategy() ??
                         Strategy\AssociationDefault::class,
+                    'limit' => $instance->getLimit(),
                 ];
 
                 $this->metadata[$reflectionClass->getName()]['fields'][$associationName] = $associationMetadata;
