@@ -24,6 +24,7 @@ use function array_flip;
 use function base64_decode;
 use function base64_encode;
 use function count;
+use function in_array;
 
 /**
  * Build a resolver for collections
@@ -50,7 +51,13 @@ class ResolveCollectionFactory
             $defaultProxyClassNameResolver = new DefaultProxyClassNameResolver();
             $entityClassName               = $defaultProxyClassNameResolver->getClass($source);
 
-            // Check for alias
+            $targetCollectionName = $info->fieldName;
+            // If an alias map exists, check for an alias
+            if (in_array($info->fieldName, $this->entityTypeContainer->get($entityClassName)->getAliasMap())) {
+                $targetCollectionName = array_flip($this->entityTypeContainer
+                    ->get($entityClassName)->getAliasMap())[$info->fieldName] ?? $info->fieldName;
+            }
+
             $targetCollectionName = array_flip($this->entityTypeContainer
                 ->get($entityClassName)->getAliasMap())[$info->fieldName] ?? $info->fieldName;
 

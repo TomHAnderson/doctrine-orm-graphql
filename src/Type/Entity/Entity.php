@@ -29,6 +29,7 @@ use function array_keys;
 use function assert;
 use function in_array;
 use function ksort;
+use function print_r;
 use function ucwords;
 
 use const SORT_REGULAR;
@@ -109,15 +110,10 @@ class Entity
      */
     public function getAliasMap(): array
     {
-        static $aliasMap = [];
-
-        // Cache the alias map
-        if ($aliasMap) {
-            return $aliasMap;
-        }
+        $aliasMap = [];
 
         foreach ($this->metadata['fields'] as $fieldName => $fieldMetadata) {
-            if (! $fieldMetadata['alias']) {
+            if (! isset($fieldMetadata['alias'])) {
                 continue;
             }
 
@@ -146,7 +142,6 @@ class Entity
         }
 
         $fields = [];
-
         $this->addFields($fields);
         $this->addAssociations($fields);
 
@@ -236,7 +231,7 @@ class Entity
             $alias = $this->getAliasMap()[$associationName] ?? null;
 
             // Collections
-            $targetEntity             = $associationMetadata['targetEntity'];
+            $targetEntity                       = $associationMetadata['targetEntity'];
             $fields[$alias ?? $associationName] = function () use ($targetEntity, $associationName) {
                 $entity    = $this->entityTypeContainer->get($targetEntity);
                 $shortName = $this->getTypeName() . '_' . ucwords($associationName);

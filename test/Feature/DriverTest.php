@@ -104,8 +104,34 @@ class DriverTest extends AbstractTest
         ]);
 
         $query = '{
-            artist (filter: { name: { contains: "dead" } })
-                { edges { node { id name performances { edges { node { venue recordings { edges { node { source } } } } } } } } }
+          artist (
+            filter: {
+              name: {
+                contains: "dead"
+              }
+            }
+          ) {
+            edges {
+              node {
+                id
+                name
+                performances {
+                  edges {
+                    node {
+                       venue
+                       recordings {
+                         edges {
+                           node {
+                             source
+                           }
+                         }
+                       }
+                     }
+                   }
+                 }
+               }
+             }
+           }
         }';
 
         $result = GraphQL::executeQuery($schema, $query);

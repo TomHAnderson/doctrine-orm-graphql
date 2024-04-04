@@ -74,7 +74,7 @@ class Performance
     #[GraphQL\Field(group: 'IncludeFiltersTest')]
     #[GraphQL\Field(group: 'LimitTest')]
     #[GraphQL\Field(group: 'AttributeLimit')]
-    #[GraphQL\Field(group: 'AliasMapTest')]
+    #[GraphQL\Field(group: 'AliasMapTest', alias: 'key')]
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue(strategy: 'AUTO')]

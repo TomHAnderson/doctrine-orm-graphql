@@ -9,11 +9,15 @@ use ApiSkeletons\Doctrine\ORM\GraphQL\Driver;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Type\Entity\EntityTypeContainer;
 use ApiSkeletonsTest\Doctrine\ORM\GraphQL\AbstractTest;
 use ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity\Artist;
-use ApiSkeletonsTest\Doctrine\ORM\GraphQL\Entity\User;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 
+use function count;
+
+/**
+ * This test uses aliases for fields and associations
+ */
 class AliasMapTest extends AbstractTest
 {
     public function testNamingStrategy(): void
@@ -50,7 +54,8 @@ class AliasMapTest extends AbstractTest
                   gigs {
                     edges {
                       node {
-                        id
+                        key
+                        date
                       }
                     }
                   }
@@ -63,6 +68,6 @@ class AliasMapTest extends AbstractTest
         $result = GraphQL::executeQuery($schema, $query);
         $output = $result->toArray();
 
-        print_r($output);die();
+        $this->assertEquals(1, count($output['data']['artist']['edges']));
     }
 }
