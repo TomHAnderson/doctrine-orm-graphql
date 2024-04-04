@@ -58,9 +58,6 @@ class ResolveCollectionFactory
                     ->get($entityClassName)->getAliasMap())[$info->fieldName] ?? $info->fieldName;
             }
 
-            $targetCollectionName = array_flip($this->entityTypeContainer
-                ->get($entityClassName)->getAliasMap())[$info->fieldName] ?? $info->fieldName;
-
             $targetClassName = (string) $this->entityManager->getMetadataFactory()
                 ->getMetadataFor($entityClassName)
                 ->getAssociationTargetClass($targetCollectionName);

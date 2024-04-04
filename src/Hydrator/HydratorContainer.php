@@ -74,18 +74,8 @@ class HydratorContainer extends Container
             $hydrator->addFilter($name, $this->get($filterClass), $condition);
         }
 
-        // Create naming strategy and assign to hydrator
-        if ($config['hydratorNamingStrategy']) {
-            $namingStrategyClass = $config['hydratorNamingStrategy'];
-
-            assert(
-                in_array(NamingStrategyInterface::class, class_implements($namingStrategyClass)),
-                'Hydrator Naming Strategy must implement ' . NamingStrategyInterface::class,
-            );
-
-            $hydrator->setNamingStrategy($this->get($namingStrategyClass));
-        } elseif ($entity->getAliasMap()) {
-            // Create a naming strategy based on field aliases
+        // Create a naming strategy based on field aliases
+        if ($entity->getAliasMap()) {
             $hydrator->setNamingStrategy(MapNamingStrategy::createFromExtractionMap($entity->getAliasMap()));
         }
 

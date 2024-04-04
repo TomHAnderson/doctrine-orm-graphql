@@ -29,7 +29,6 @@ use function array_keys;
 use function assert;
 use function in_array;
 use function ksort;
-use function print_r;
 use function ucwords;
 
 use const SORT_REGULAR;
