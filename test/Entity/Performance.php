@@ -33,6 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[GraphQL\Entity(group: 'CriteriaEvent')]
 #[GraphQL\Entity(group: 'LimitTest')]
 #[GraphQL\Entity(group: 'AttributeLimit')]
+#[GraphQL\Entity(group: 'AliasMapTest')]
 #[ORM\Entity]
 class Performance
 {
@@ -64,6 +65,7 @@ class Performance
 
     #[GraphQL\Field(description: 'Performance date')]
     #[GraphQL\Field(group: 'LimitTest')]
+    #[GraphQL\Field(group: 'AliasMapTest', alias: 'date')]
     #[ORM\Column(type: 'datetime', nullable: false)]
     private DateTime $performanceDate;
 
@@ -72,6 +74,7 @@ class Performance
     #[GraphQL\Field(group: 'IncludeFiltersTest')]
     #[GraphQL\Field(group: 'LimitTest')]
     #[GraphQL\Field(group: 'AttributeLimit')]
+    #[GraphQL\Field(group: 'AliasMapTest')]
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue(strategy: 'AUTO')]

@@ -109,7 +109,12 @@ class Entity
      */
     public function getAliasMap(): array
     {
-        $aliasMap = [];
+        static $aliasMap = [];
+
+        // Cache the alias map
+        if ($aliasMap) {
+            return $aliasMap;
+        }
 
         foreach ($this->metadata['fields'] as $fieldName => $fieldMetadata) {
             if (! $fieldMetadata['alias']) {
@@ -187,7 +192,9 @@ class Entity
                 continue;
             }
 
-            $fields[$fieldName] = [
+            $alias = $this->getAliasMap()[$fieldName] ?? null;
+
+            $fields[$alias ?? $fieldName] = [
                 'type' => $this->typeContainer
                     ->get($this->getmetadata()['fields'][$fieldName]['type']),
                 'description' => $this->metadata['fields'][$fieldName]['description'],
@@ -226,9 +233,11 @@ class Entity
                 continue;
             }
 
+            $alias = $this->getAliasMap()[$associationName] ?? null;
+
             // Collections
             $targetEntity             = $associationMetadata['targetEntity'];
-            $fields[$associationName] = function () use ($targetEntity, $associationName) {
+            $fields[$alias ?? $associationName] = function () use ($targetEntity, $associationName) {
                 $entity    = $this->entityTypeContainer->get($targetEntity);
                 $shortName = $this->getTypeName() . '_' . ucwords($associationName);
 

@@ -11,7 +11,7 @@ use Doctrine\Laminas\Hydrator\DoctrineObject;
 use Doctrine\ORM\EntityManager;
 use GraphQL\Error\Error;
 use Laminas\Hydrator\Filter;
-use Laminas\Hydrator\NamingStrategy\NamingStrategyEnabledInterface;
+use Laminas\Hydrator\NamingStrategy\MapNamingStrategy;
 use Laminas\Hydrator\NamingStrategy\NamingStrategyInterface;
 use Laminas\Hydrator\Strategy\StrategyInterface;
 
@@ -84,11 +84,9 @@ class HydratorContainer extends Container
             );
 
             $hydrator->setNamingStrategy($this->get($namingStrategyClass));
-        }
-
-        // Create a naming strategy based on field aliases
-        if (! $config['hydratorNamingStrategy'] && $entity->getAliasMap()) {
-
+        } elseif ($entity->getAliasMap()) {
+            // Create a naming strategy based on field aliases
+            $hydrator->setNamingStrategy(MapNamingStrategy::createFromExtractionMap($entity->getAliasMap()));
         }
 
         $this->set($id, $hydrator);

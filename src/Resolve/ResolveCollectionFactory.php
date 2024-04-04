@@ -8,6 +8,7 @@ use ApiSkeletons\Doctrine\ORM\GraphQL\Config;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Event\Criteria as CriteriaEvent;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Filter\Filters;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Type\Entity\Entity;
+use ApiSkeletons\Doctrine\ORM\GraphQL\Type\Entity\EntityTypeContainer;
 use ApiSkeletons\Doctrine\ORM\GraphQL\Type\TypeContainer;
 use ArrayObject;
 use Closure;
@@ -19,6 +20,7 @@ use Doctrine\ORM\Proxy\DefaultProxyClassNameResolver;
 use GraphQL\Type\Definition\ResolveInfo;
 use League\Event\EventDispatcher;
 
+use function array_flip;
 use function base64_decode;
 use function base64_encode;
 use function count;
@@ -33,6 +35,7 @@ class ResolveCollectionFactory
         protected Config $config,
         protected FieldResolver $fieldResolver,
         protected TypeContainer $typeContainer,
+        protected EntityTypeContainer $entityTypeContainer,
         protected EventDispatcher $eventDispatcher,
         protected ArrayObject $metadata,
     ) {
@@ -47,9 +50,13 @@ class ResolveCollectionFactory
             $defaultProxyClassNameResolver = new DefaultProxyClassNameResolver();
             $entityClassName               = $defaultProxyClassNameResolver->getClass($source);
 
+            // Check for alias
+            $targetCollectionName = array_flip($this->entityTypeContainer
+                ->get($entityClassName)->getAliasMap())[$info->fieldName] ?? $info->fieldName;
+
             $targetClassName = (string) $this->entityManager->getMetadataFactory()
                 ->getMetadataFor($entityClassName)
-                ->getAssociationTargetClass($info->fieldName);
+                ->getAssociationTargetClass($targetCollectionName);
 
             return $this->buildPagination(
                 $entityClassName,
@@ -57,7 +64,7 @@ class ResolveCollectionFactory
                 $args['pagination'] ?? [],
                 $collection,
                 $this->buildCriteria($args['filter'] ?? []),
-                $this->metadata[$entityClassName]['fields'][$info->fieldName]['criteriaEventName'],
+                $this->metadata[$entityClassName]['fields'][$targetCollectionName]['criteriaEventName'],
                 $source,
                 $args,
                 $context,

@@ -81,6 +81,7 @@ trait Services
                         $container->get(Config::class),
                         $container->get(Resolve\FieldResolver::class),
                         $container->get(Type\TypeContainer::class),
+                        $container->get(Type\Entity\EntityTypeContainer::class),
                         $container->get(EventDispatcher::class),
                         $container->get('metadata'),
                     );
