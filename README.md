@@ -27,6 +27,13 @@ composer require api-skeletons/doctrine-orm-graphql
 ```
 
 
+Versions
+--------
+
+* Version 10.x is for use with `league/event` version 3.
+* Version 11.x is for use with `league/event` version 2.
+
+
 Documentation
 -------------
 
