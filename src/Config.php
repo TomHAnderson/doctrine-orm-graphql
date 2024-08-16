@@ -100,7 +100,7 @@ class Config
 
         foreach ($mergedConfig as $field => $value) {
             if (! property_exists($this, $field)) {
-                throw new InvalidArgumentException('Invalid configuration setting: ' . $field);
+                throw new InvalidArgumentException('Invalid configuration: ' . $field);
             }
 
             $this->$field = $value;
